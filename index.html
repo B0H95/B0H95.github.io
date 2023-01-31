@@ -1,0 +1,159 @@
+<!DOCTYPE html><html><head><title>b0h.dev</title></head><link rel="stylesheet" href="/style.css"/><body>
+    <h1>/bin/sh cheat sheet</h1>
+    <h2>Filename expansion</h2>
+    <pre>
+      # Results are expanded on a single line, alphabetically sorted (use echo for debugging)
+      *              all files
+      ?              where name length == 1
+      ???            where name length == 3
+      ???*           where name length >= 3
+      [abc]          where name length == 1 and follows pattern
+      [a-zA-Z0-9]    where name length == 1 and follows pattern
+      [!a-z]*        negative matching first character and length >= 1
+      *.[!a-zA-Z]    ends with dot followed by negative matching last character
+      dir/*          all files in dir
+      dir/.*         all invisible files in dir
+      */*            all files in all visible directories
+      */*/*          same as above but 3 levels deep
+      .*/*           all files in all invisible directories (including . and ..)
+      .*/.*          all invisible files in all invisible directories (including . and ..)
+      .[!.]*/.[!.]*  all invisible files in all invisible directories (not including . and ..)
+    </pre>
+    <h2>Quoting</h2>
+    <pre>
+      echo 'hello there'      # hello there
+      echo hel'lo th'ere      # hello there (quotes shift state)
+      echo "hello $HOME"      # hello /home/user
+      echo "hello ${HOME}"    # hello /home/user
+      echo "hello $(ls -a)"   # hello (dir contents)
+      echo "hello `ls -a`"    # hello (dir contents)
+      echo "hello \`ls -a\`"  # hello `ls -a`
+      echo 'hello \`ls -a\`'  # hello \`ls -a\`
+      echo `ls -a`            # (dir contents)
+    </pre>
+    <h2>Magic shell variables</h2>
+    <pre>
+      PATH           executable path, searched in order, colon separated
+      HOME           where cd goes if no argument is specified, set by the login process
+      IFS            internal field separator, defaults to " \t\n"
+      PWD            current working directory
+      0              current executable file name
+      1..9           parameters to current executable
+      *              all parameters, space separated regardless of quoting, "$*" represents a string of all parameters
+      @              same as above, except that quoting is retained on each parameter
+      #              amount of parameters
+      $              current pid
+      !              pid of latest started background process (&)
+      ?              return code of last process
+    </pre>
+    <h2>Magic shell commands</h2>
+    <pre>
+      :              does nothing (useful in if-statements for leaving then-cases empty)
+    </pre>
+    <h2>Programming and control-flow</h2>
+    <h3>Variables</h3>
+    <pre>
+      # allowed variable names: [a-zA-Z0-9_] (first character may not be a number)
+      VAR=value
+      VAR="another value"
+      echo $VAR
+      echo ${VAR}
+      A=aaa B=bbb C=ccc; echo $A $B $C
+      export VAR  # move from "set" to "env/export", child-processes will now inherit the variable
+      echo ${WAR?variable does not exist}
+      echo ${WAR?}
+      echo ${WAR-use me if undefined}
+      echo ${VAR+use me if defined, else empty}
+      echo ${WAR=redefine to me if undefined, return redefinition}
+      # above forms can be replaced with :?, :-, :+ and := to have empty-string and undefined mean the same thing
+      unset VAR
+    </pre>
+    <h3>Operators</h3>
+    <pre>
+      &&               # and, short circuits
+      ||               # or, short circuits
+      &                # start process in background
+      ;                # separate commands
+      { stmt; stmt; }  # group statements
+      ( stmt; stmt )   # same as above, but runs in a subshell, so variables or other state won't transfer over
+    </pre>
+    <h3>If-statements</h3>
+    <pre>
+      # where command-list is either a single command or a list of
+      # commands separated by &, ;, &&, ||, | or newline. if the
+      # condition returns 0, the then-case happens
+      if command-list
+      then
+          command-list
+      elif command-list
+      then
+          command-list
+      elif command-list
+      then
+          command-list
+      else
+          command-list
+      fi
+    </pre>
+    <h3>While-statements / Until-statements</h3>
+    <pre>
+      # works similar to if-statements, "break" and "continue" works
+      # like you expect
+      while command-list
+      do
+          command-list
+      done
+
+      until command-list
+      do
+          command-list
+      done
+    </pre>
+    <h3>For-loops</h3>
+    <pre>
+      # "break" and "continue" works here too
+      for i in a b c d e
+      do
+          echo "==$i=="
+      done
+
+      # ==a==
+      # ==b==
+      # ==c==
+      # ==d==
+      # ==e==
+    </pre>
+    <h3>Cases</h3>
+    <pre>
+      # cases use the same pattern syntax as filename expansions
+      case $choice in
+          yes | YES | y )
+              echo YES
+              ;;
+          no | NO | n )
+              echo NO
+              ;;
+          [a-z]* )
+              echo Something...
+              ;;
+          * )
+              echo Anything...
+              ;;
+      esac
+    </pre>
+    <h2>Functions</h2>
+    <pre>
+      func() {
+          echo parameter1=$1 parameter2=$2 etc
+          return 0  # if not specified, returns status of the last command
+      }
+    </pre>
+    <h2>Here documents</h2>
+    <pre>
+      cat &#60;&#60; HERE | grep a
+      qwerty
+      asdfgh
+      zxcvbn
+      HERE
+    </pre>
+</body></html>
