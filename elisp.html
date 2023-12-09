@@ -6,7 +6,7 @@
 <!-- 2023-12-09 Sat 18:17 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>b0h.dev</title>
+<title>Emacs Lisp</title>
 <meta name="generator" content="Org Mode" />
 <style>
   #content { max-width: 60em; margin: auto; }
@@ -196,15 +196,65 @@
 </head>
 <body>
 <div id="content" class="content">
-<h1 class="title">b0h.dev</h1>
-
-<div id="outline-container-orgcdb5085" class="outline-2">
-<h2 id="orgcdb5085">Cheat sheets</h2>
-<div class="outline-text-2" id="text-orgcdb5085">
-<ul class="org-ul">
-<li><a href="sh.html">/bin/sh</a></li>
-<li><a href="elisp.html">Emacs Lisp</a></li>
+<h1 class="title">Emacs Lisp</h1>
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org8325cd5">1. Per-directory minor modes</a></li>
+<li><a href="#org5e9fe6e">2. Per-directory build commands</a></li>
 </ul>
+</div>
+</div>
+
+<div id="outline-container-org8325cd5" class="outline-2">
+<h2 id="org8325cd5"><span class="section-number-2">1.</span> Per-directory minor modes</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+The following example enables company-mode only for JavaScript (and related)
+files for some given project path:
+</p>
+
+<pre class="example">
+(defun per-directory-company-mode ()
+  (let ((fname (buffer-file-name)))
+    (when fname
+      (let ((fname (expand-file-name fname)))
+        (when (string-prefix-p "/home/b0h/development/project/" fname)
+          (when (or
+                 (string-suffix-p ".ts" fname)
+                 (string-suffix-p ".tsx" fname)
+                 (string-suffix-p ".js" fname)
+                 (string-suffix-p ".jsx" fname))
+            (company-mode 1)))))))
+(add-hook 'find-file-hook 'per-directory-company-mode)
+</pre>
+</div>
+</div>
+
+<div id="outline-container-org5e9fe6e" class="outline-2">
+<h2 id="org5e9fe6e"><span class="section-number-2">2.</span> Per-directory build commands</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+The following example makes pressing F5 run different build commands depending
+on where the file you're editing is located:
+</p>
+
+<pre class="example">
+(defun build ()
+  (interactive)
+  (let ((fname (buffer-file-name))
+        (compilation-scroll-output t))
+    (when fname
+      (let ((fname (expand-file-name fname)))
+        (cond ((string-prefix-p "/home/b0h/development/project1/" fname)
+               (let ((default-directory "/home/b0h/development/project1/"))
+                 (compile "npm run build ")))
+              ((string-prefix-p "/home/b0h/development/project2/" fname)
+               (let ((default-directory "/home/b0h/development/project2/"))
+                 (compile "make all "))))))))
+(global-set-key (kbd "&lt;f5&gt;") 'build)
+</pre>
 </div>
 </div>
 </div>
