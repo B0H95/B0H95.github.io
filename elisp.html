@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2023-12-09 Sat 18:17 -->
+<!-- 2024-11-01 Fri 15:52 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Emacs Lisp</title>
@@ -201,14 +201,15 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org8325cd5">1. Per-directory minor modes</a></li>
-<li><a href="#org5e9fe6e">2. Per-directory build commands</a></li>
+<li><a href="#org86f12ac">1. Per-directory minor modes</a></li>
+<li><a href="#org3b86adf">2. Per-directory build commands</a></li>
+<li><a href="#orgd28f84c">3. Load all files in a directory matching some regexp</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-org8325cd5" class="outline-2">
-<h2 id="org8325cd5"><span class="section-number-2">1.</span> Per-directory minor modes</h2>
+<div id="outline-container-org86f12ac" class="outline-2">
+<h2 id="org86f12ac"><span class="section-number-2">1.</span> Per-directory minor modes</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 The following example enables company-mode only for JavaScript (and related)
@@ -232,8 +233,8 @@ files for some given project path:
 </div>
 </div>
 
-<div id="outline-container-org5e9fe6e" class="outline-2">
-<h2 id="org5e9fe6e"><span class="section-number-2">2.</span> Per-directory build commands</h2>
+<div id="outline-container-org3b86adf" class="outline-2">
+<h2 id="org3b86adf"><span class="section-number-2">2.</span> Per-directory build commands</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 The following example makes pressing F5 run different build commands depending
@@ -254,6 +255,29 @@ on where the file you're editing is located:
                (let ((default-directory "/home/b0h/development/project2/"))
                  (compile "make all "))))))))
 (global-set-key (kbd "&lt;f5&gt;") 'build)
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgd28f84c" class="outline-2">
+<h2 id="orgd28f84c"><span class="section-number-2">3.</span> Load all files in a directory matching some regexp</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+Useful if you always want some set of files loaded at all times (projects, etc)
+</p>
+
+<pre class="example">
+(defun load-files ()
+  (interactive)
+  (let ((projects '(("/home/b0h/Development/project1" "\\.qc$" "\\.src$")
+                    ("/home/b0h/Development/project2" "\\.tsx?$"))))
+    (dolist (project projects)
+      (let ((dir (car project))
+            (fileregexes (cdr project)))
+        (dolist (fileregex fileregexes)
+          (let ((files (directory-files-recursively dir fileregex)))
+            (dolist (file files)
+              (find-file-noselect file))))))))
 </pre>
 </div>
 </div>
